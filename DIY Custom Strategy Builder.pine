@@ -1,8 +1,8 @@
-//@ZPayab
+//@Tali
 
 //@version=5
 
-indicator(title='DIY Custom Strategy Builder  [ZP] - v1', overlay=true, max_bars_back=500)
+indicator(title='Custom strategy Builder', overlay=true, max_bars_back=500)
 
 ma(_source, _length, _type) => 
     switch _type
