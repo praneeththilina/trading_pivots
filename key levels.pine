@@ -1,0 +1,75 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © PraneethCrpt
+
+//@version=5
+indicator("Key level for me", "KL4ME",true )
+
+// Set the number of bars to look back
+lookbackBars = input.int(21, "Look Back Bars")
+
+
+// Function to calculate EMA based on timeframe
+getEMA(length) =>
+    ta.ema(close, length)
+
+// Determine timeframe and set EMA length
+timeframeIsDaily = timeframe.isdaily
+timeframeIsWeekly = timeframe.isweekly
+timeframeIsMonthly = timeframe.ismonthly
+is4HourTimeframe = timeframe.isminutes and timeframe.multiplier == 240
+
+
+emaM1 = input.int(defval = 2, title="EMA MLenth1")
+emaM2 = input.int(defval = 1, title="EMA MLenth2")
+emaM3 = input.int(defval = 2, title="EMA MLenth3")
+
+
+emaW1 = input.int(defval = 12, title="EMA WLenth1")
+emaW2 = input.int(defval = 11, title="EMA WLenth2")
+emaW3 = input.int(defval = 12, title="EMA WLenth3")
+
+emaD1 = input.int(defval = 13, title="EMA DLenth1")
+emaD2 = input.int(defval = 55, title="EMA DLenth2")
+emaD3 = input.int(defval = 1, title="EMA DLenth3")
+
+ema4H1 = input.int(defval = 13, title="EMA 4hLenth1")
+ema4H2 = input.int(defval = 55, title="EMA 4hLenth2")
+ema4H3 = input.int(defval = 1, title="EMA 4hLenth3")
+
+
+ema1 = is4HourTimeframe ? ema4H1 :timeframeIsDaily ? emaD1 :timeframeIsWeekly ? emaW1 :timeframeIsMonthly ? emaM1 : 13
+ema2 = is4HourTimeframe ? ema4H2 :timeframeIsDaily ? emaD2 :timeframeIsWeekly ? emaW2 :timeframeIsMonthly ? emaM2 : 27
+ema3 = is4HourTimeframe ? ema4H3 :timeframeIsDaily ? emaD3 :timeframeIsWeekly ? emaW3 :timeframeIsMonthly ? emaM3 : 4
+
+
+closeDiffAbs = ta.ema((ta.ema(math.abs(close - close[1]),ema1)*2.618),ema2)
+sup = close + closeDiffAbs
+res = close - closeDiffAbs
+
+supEma = ta.ema(sup, ema3)
+resEma = ta.ema(res, ema3)
+
+var float  x = 0
+if(sup  < x[1])
+    x := supEma 
+else 
+    x := resEma
+
+    x
+
+xEma = ta.ema(x, 3)
+// Use the highest function to get the highest high value in the last 10 bars
+highestHigh = ta.highest(xEma, lookbackBars)
+lowestLow = ta.lowest(xEma, lookbackBars)
+
+mid = (highestHigh + lowestLow)/2
+// Get the index of the bar with the highest high value
+// highestHighIndex = ta.barssince(high == highestHigh)
+// lowestLowIndex = ta.barssince(low == lowestLow)
+
+
+plot(highestHigh, "highestHigh",color.red, 1, plot.style_line )
+plot(lowestLow, "lowestLow",color.green, 1, plot.style_line )
+plot(mid, "lowestLow",color.rgb(237, 186, 0), 2, plot.style_line )
+
+// plot(xEma, "lowestLow",color.rgb(182, 0, 237), 2, plot.style_line )
